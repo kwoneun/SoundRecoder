@@ -1,17 +1,18 @@
 package com.example.voicetest;
 
 import android.app.Activity;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class VoiceTest extends Activity implements View.OnClickListener{
+	
+	
+	private String TAG = "VoiceTest";
 	
 	private Button mStart = null;
 	private Button mStop = null;
@@ -21,11 +22,12 @@ public class VoiceTest extends Activity implements View.OnClickListener{
 	private RecordThread mRecordThread = null;
 	
 	
-	private static final int START_VOICE_TEST = 0;
-	private static final int STOP_VOICE_TEST = 1;
+	private static final int START_VOICE_TEST = 10;
+	private static final int STOP_VOICE_TEST = 11;
 	
-	public static final int VOICE_TEST_TING = 1000;
-	public static final int VOICE_TEST_NO = 10001;
+	public static final int VOICE_TEST_RESULT = 1000;
+	public static final int VOICE_TEST_TING = 1001;
+	public static final int VOICE_TEST_NO = 10002;
 	
 	private Handler mHandle = new Handler(){
 
@@ -35,9 +37,11 @@ public class VoiceTest extends Activity implements View.OnClickListener{
 			int what = msg.what;
 			String result = "";
 			switch (what) {
+			case RecordThread.VOICE_TEST_RESULT:
 			case VOICE_TEST_NO:
 			case VOICE_TEST_TING:
-				result = "action code is " + msg.arg1 + " -- voice is " + msg.arg2;
+				result = "action code is " + msg.obj.toString();
+				Log.d("wang",result);
 				break;
 				
 			case START_VOICE_TEST:
@@ -71,12 +75,6 @@ public class VoiceTest extends Activity implements View.OnClickListener{
 		
 		mResult = (TextView)findViewById(R.id.textView1);
 		
-//		int bs = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
-//				AudioFormat.CHANNEL_CONFIGURATION_MONO,
-//				AudioFormat.ENCODING_PCM_16BIT);
-//		AudioRecord ar = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ,
-//				AudioFormat.CHANNEL_CONFIGURATION_MONO,
-//				AudioFormat.ENCODING_PCM_16BIT, bs);
 	}
 
 
@@ -91,7 +89,9 @@ public class VoiceTest extends Activity implements View.OnClickListener{
 			mHandle.sendEmptyMessage(START_VOICE_TEST);
 			break;
 		case R.id.stop:
-			mRecordThread.stopThread();
+			if( null != mRecordThread ){
+				mRecordThread.stopThread();
+			}
 			break;
 		default:
 			break;
